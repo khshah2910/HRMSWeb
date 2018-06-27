@@ -5,20 +5,19 @@ import com.hrms.entity.Manager;
 import com.hrms.entity.Team;
 import com.hrms.exceptions.ResourceNotFoundException;
 import com.hrms.repository.EmployeeRepository;
-import com.hrms.repository.ManagerRepository;
 import com.hrms.repository.TeamRepository;
 import com.hrms.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
-@RequestMapping("/api")
-public class SystemController {
-
+@RequestMapping("/employee")
+public class EmployeeController {
     @Autowired
     EmployeeService employeeService;
 
@@ -29,18 +28,21 @@ public class SystemController {
     TeamRepository teamRepository;
 
     @Autowired
-    ManagerRepository managerRepository;
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    @GetMapping("/employees")
+
+
+    @GetMapping()
     public Iterable<Employee> getEmployees(){
         Iterable<Employee> employees = employeeRepository.findAll();
+        System.out.println(((List<Employee>) employees).get(1));
         if(((List<Employee>) employees).isEmpty()){
             throw new ResourceNotFoundException("No Records Found!");
         }
         return employees;
     }
 
-    @GetMapping("/employee/{id}")
+    @GetMapping("/{id}")
     public Employee findById(@PathVariable Long id){
         Employee employee = employeeRepository.findEmployeeById(id);
         if(employee == null){
@@ -48,14 +50,34 @@ public class SystemController {
         }
         return employee;
     }
+    @GetMapping("/findByName/{name}")
+    public List<Employee> findByName(@PathVariable String name){
+        List<Employee> employee = employeeRepository.findByFirstName(name);
+        if(employee == null){
+            throw  new ResourceNotFoundException("\n\n No record with name " + name + " found");
+        }
+        return employee;
+    }
 
-    @PostMapping("/employee/register")
+    @GetMapping("/findByTeam/{teamName}")
+    public List<Employee> findByTeamName(@PathVariable String teamName){
+
+        Team teams = teamRepository.findByTeamName(teamName);
+
+        List<Employee> employee = employeeRepository.findByTeam(teams);
+        System.out.println(employee);
+        if(employee == null){
+            throw  new ResourceNotFoundException("\n\n No record with name " + teamName + " found");
+        }
+        return employee;
+    }
+
+    @PostMapping("/create")
     public Employee createEmployee(@RequestBody Employee employee, Manager manager){
-        System.out.println("-------->>>>>>>>>"+employee);
         return employeeService.createEmployee(employee, manager);
     }
 
-    @DeleteMapping("/employee/remove/{id}")
+    @DeleteMapping("/remove/{id}")
     public void removeEmployee(@PathVariable Long id){
         Employee employee = employeeRepository.findEmployeeById(id);
         if(employee == null){
@@ -64,38 +86,14 @@ public class SystemController {
         employeeRepository.delete(employee);
     }
 
-    @PutMapping("/employee/update")
+    @PutMapping("/update")
     public Employee updateEmployee(@RequestBody Employee employee){
+        employee.setPassword(bCryptPasswordEncoder.encode(employee.getPassword()));
         return employeeRepository.save(employee);
     }
 
-    @PostMapping("/register/team")
-    public Team createTeam(@RequestBody Team team) {
-        System.out.println(" kjdsfbsdl");
-        return teamRepository.save(team);
-    }
 
-    @GetMapping("/teams")
-    public Iterable<Team> getTeams(){
-        Iterable<Team> teams = teamRepository.findAll();
-        if(((List<Team>) teams).isEmpty()){
-            throw  new ResourceNotFoundException("No Records Found");
-        }
-        return teams;
-    }
 
-    @GetMapping("/manager")
-    public List<Manager> getAllManagers(){
-        return managerRepository.findAll()  ;
-    }
 
-    @GetMapping("/manager/{managerId}")
-    public Manager findByManagerId(@PathVariable Long managerId){
-       Manager manager = managerRepository.findManagerById(managerId);
 
-        if(manager == null) {
-            throw new ResourceNotFoundException("Manager with id: " + managerId + "Not found ");
-        }
-        return manager;
-    }
 }
