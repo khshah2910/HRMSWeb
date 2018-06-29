@@ -2,6 +2,7 @@ package com.hrms.entity;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "employee")
@@ -30,6 +31,11 @@ public class Employee {
     @NotNull
     private String email;
 
+
+
+    @Column(name = "created")
+    private LocalDateTime createdOn;
+
     /*@Column(name = "created")
     private String createdOn;*/
 
@@ -45,14 +51,14 @@ public class Employee {
     public Employee() {
     }
 
-    public Employee(String userName, String password, String status, String firstName, String lastName, String email/*, String createdOn*/) {
+    public Employee(String userName, String password, String status, String firstName, String lastName, String email, LocalDateTime createdOn) {
         this.userName = userName;
         this.password = password;
         this.status = status;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-        /*this.createdOn = createdOn;*/
+        this.createdOn = createdOn;
     }
 
     public long getId() {
@@ -111,13 +117,14 @@ public class Employee {
         this.email = email;
     }
 
-    /*public String getCreatedOn() {
+
+    public LocalDateTime getCreatedOn() {
         return createdOn;
     }
 
-    public void setCreatedOn(String createdOn) {
+    public void setCreatedOn(LocalDateTime createdOn) {
         this.createdOn = createdOn;
-    }*/
+    }
 
     public String getRole() {
         return role;
@@ -145,7 +152,7 @@ public class Employee {
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +
-                /*", createdOn=" + createdOn +*/
+                ", createdOn=" + createdOn +
                 '}';
     }
 }

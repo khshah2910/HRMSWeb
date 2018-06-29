@@ -9,7 +9,6 @@ import com.hrms.repository.TeamRepository;
 import com.hrms.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,6 +26,7 @@ public class EmployeeController {
     @Autowired
     TeamRepository teamRepository;
 
+
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
@@ -35,7 +35,6 @@ public class EmployeeController {
     @GetMapping()
     public Iterable<Employee> getEmployees(){
         Iterable<Employee> employees = employeeRepository.findAll();
-        System.out.println(((List<Employee>) employees).get(1));
         if(((List<Employee>) employees).isEmpty()){
             throw new ResourceNotFoundException("No Records Found!");
         }
@@ -86,10 +85,12 @@ public class EmployeeController {
         employeeRepository.delete(employee);
     }
 
-    @PutMapping("/update")
-    public Employee updateEmployee(@RequestBody Employee employee){
+    @PutMapping("/update/{id}")
+    public Employee updateEmployee(@RequestBody Employee employee,@PathVariable Long id){
+        Employee emp = employeeRepository.findEmployeeById(id);
         employee.setPassword(bCryptPasswordEncoder.encode(employee.getPassword()));
-        return employeeRepository.save(employee);
+        Employee persist = employeeRepository.save(employee);
+        return persist;
     }
 
 
